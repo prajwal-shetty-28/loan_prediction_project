@@ -1,0 +1,19 @@
+Loan Approval Prediction using Machine Learning
+
+Built a binary classification model to predict whether a loan application should be approved or rejected using a Kaggle Loan dataset.
+
+Implemented Logistic Regression as the primary algorithm and achieved strong performance by optimizing preprocessing and feature transformations.
+
+Performed extensive data cleaning, handled missing values, and encoded categorical variables using OneHotEncoder; scaled numerical features for improved model performance.
+
+Conducted Exploratory Data Analysis (EDA) to identify key drivers affecting loan approval, such as income level, credit history, loan amount, and employment status.
+
+Split data into training and testing sets to ensure robust performance evaluation using accuracy, confusion matrix, and classification reports.
+
+Serialized the trained model using Pickle (loan_model.pkl) for reuse and deployment.
+
+Developed an interactive Streamlit web application allowing users to input applicant data and receive real-time loan approval predictions.
+
+Created a clean and user-friendly interface for seamless user interaction and instant classification results.
+
+Demonstrated an end-to-end ML workflow including data preprocessing, model training, evaluation, serialization, and deployment.
