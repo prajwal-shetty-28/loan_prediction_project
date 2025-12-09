@@ -1,17 +1,25 @@
 import numpy as np
-import pickle
 import pandas as pd
 import streamlit as st
+import joblib
 
 # ------------------------------------
 # Load the trained Loan Model
 # ------------------------------------
-pickle_in = open("loan_data.pkl", "rb")
-model = pickle.load(pickle_in)
+try:
+    model = joblib.load("loan_model.joblib")  # Use joblib, not pickle
+except FileNotFoundError:
+    st.error("Model file 'loan_model.joblib' not found. Make sure it is in the project folder.")
+    st.stop()
+except Exception as e:
+    st.error(f"Error loading the model: {e}")
+    st.stop()
 
+# ------------------------------------
+# Prediction function
+# ------------------------------------
 def predict_loan(Income, Loan_Amount, Credit_Score, Employment_Status, DTI_Ratio, Text):
     try:
-        # Create dataframe with the exact same columns used during training
         input_data = pd.DataFrame([{
             'Income': float(Income),
             'Loan_Amount': float(Loan_Amount),
@@ -21,10 +29,8 @@ def predict_loan(Income, Loan_Amount, Credit_Score, Employment_Status, DTI_Ratio
             'Text': Text
         }])
 
-        # Predict
         prediction = model.predict(input_data)[0]
 
-        # Convert prediction to text label
         if prediction in ['Y', 1, 'Approved']:
             return "Loan Approved ✔"
         else:
@@ -33,37 +39,31 @@ def predict_loan(Income, Loan_Amount, Credit_Score, Employment_Status, DTI_Ratio
     except Exception as e:
         return f"Error: {e}"
 
-
 # ------------------------------------
-# MAIN STREAMLIT APP
+# Main Streamlit App
 # ------------------------------------
 def main():
+    st.set_page_config(page_title="Loan Approval Prediction", page_icon="💰")
     st.title("Loan Approval Prediction App")
 
-    html_temp = """
+    st.markdown("""
     <div style="background-color:purple;padding:10px">
     <h2 style="color:white;text-align:center;">Loan Approval Prediction</h2>
     </div>
-    """
-    st.markdown(html_temp, unsafe_allow_html=True)
+    """, unsafe_allow_html=True)
 
     # -------------------------------
-    # INPUT FIELDS (MATCHING MODEL)
+    # Inputs
     # -------------------------------
-    Income = st.text_input("Income", "Enter applicant income")
-
-    Loan_Amount = st.text_input("Loan Amount", "Enter loan amount")
-
-    Credit_Score = st.text_input("Credit Score", "Enter credit score")
-
+    Income = st.number_input("Income", min_value=0.0, step=1000.0)
+    Loan_Amount = st.number_input("Loan Amount", min_value=0.0, step=1000.0)
+    Credit_Score = st.number_input("Credit Score", min_value=0.0, max_value=1000.0, step=1.0)
     Employment_Status = st.selectbox(
         "Employment Status",
         ("Salaried", "Self-Employed", "Unemployed", "Student", "Retired")
     )
-
-    DTI_Ratio = st.text_input("DTI Ratio", "Enter debt-to-income ratio (0-1)")
-
-    Text = st.text_input("Text", "Enter any description / notes")
+    DTI_Ratio = st.number_input("DTI Ratio", min_value=0.0, max_value=1.0, step=0.01)
+    Text = st.text_input("Additional Notes", "")
 
     result = ""
 
@@ -75,16 +75,15 @@ def main():
             Income, Loan_Amount, Credit_Score,
             Employment_Status, DTI_Ratio, Text
         )
-
-    st.success(f"The result is: {result}")
+        st.success(f"The result is: {result}")
 
     # -------------------------------
     # About Section
     # -------------------------------
+    st.markdown("---")
     if st.button("About"):
-        st.text("Loan Approval Prediction Model")
-        st.text("Built using Streamlit + ML Pipeline")
-
+        st.info("Loan Approval Prediction App built with Streamlit and a trained ML model.")
+        st.text("Enter applicant details above and click Predict to see the result.")
 
 if __name__ == '__main__':
     main()
